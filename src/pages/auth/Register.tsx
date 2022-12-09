@@ -1,5 +1,6 @@
 import React, { FC, useState } from "react";
 import { CustomInput } from "../../components/input";
+import { useNavigate } from "react-router-dom";
 
 interface DataRegister {
 	name?: string | null,
@@ -9,6 +10,7 @@ interface DataRegister {
 }
 
 const Register: FC = () => {
+	const navigate = useNavigate()
 	const [data, setData] = useState<DataRegister>({
 		name: '',
 		email: '',
@@ -93,7 +95,7 @@ const Register: FC = () => {
 				</div>
 
 				<div className="flex justify-between items-center">
-					<p className="">Have account ? <a href="/auth/login" className=" text-secondary-50">Login</a></p>
+					<p className="">Have account ? <span className=" text-secondary-50 cursor-pointer" onClick={() => navigate("/auth/login")}>Login</span></p>
 					<button onClick={onSubmit} className=" btn btn-primary normal-case">Sign Up</button>
 				</div>
 			</div>
