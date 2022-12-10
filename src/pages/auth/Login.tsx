@@ -1,6 +1,9 @@
 import React, { FC, useState } from "react";
 import { CustomInput } from "../../components/input";
 import { useNavigate } from "react-router-dom";
+
+import { MainLayout } from "../../components/layouts"
+
 import InputValidation from "../../helpers/InputValidation";
 
 interface DataLogin {
@@ -75,40 +78,43 @@ const Login: FC = () => {
 	/* ---------------------------- End On Validation --------------------------- */
 
 	return (
-		<div className=" w-full">
-			<p className=" text-center text-2xl text-menu-label mb-8">Login</p>
-			<div className=" container">
-				<div className="mb-5">
-					<CustomInput
-						name="email"
-						label="Email"
-						required={true}
-						type="email"
-						value={data.email ?? ''}
-						error={errData.email}
-						onChange={onChange}
-					/>
-				</div>
-				<div className="mb-5">
-					<CustomInput
-						name="password"
-						label="Password"
-						required={true}
-						type="password"
-						value={data.password ?? ''}
-						error={errData.password}
-						onChange={onChange}
-					/>
-				</div>
+		<MainLayout>
 
-				<div className="flex justify-between items-center">
-					<p className="">Don't have account ? <span
-						className=" text-secondary-50 cursor-pointer"
-						onClick={() => navigate("/auth/register")}>Create one</span></p>
-					<button onClick={onSubmit} className=" btn btn-primary normal-case">Login</button>
+			<div className=" w-full">
+				<p className=" text-center text-2xl text-menu-label mb-8">Login</p>
+				<div className=" container">
+					<div className="mb-5">
+						<CustomInput
+							name="email"
+							label="Email"
+							required={true}
+							type="email"
+							value={data.email ?? ''}
+							error={errData.email}
+							onChange={onChange}
+						/>
+					</div>
+					<div className="mb-5">
+						<CustomInput
+							name="password"
+							label="Password"
+							required={true}
+							type="password"
+							value={data.password ?? ''}
+							error={errData.password}
+							onChange={onChange}
+						/>
+					</div>
+
+					<div className="flex justify-between items-center">
+						<p className="">Don't have account ? <span
+							className=" text-secondary-50 cursor-pointer"
+							onClick={() => navigate("/auth/register")}>Create one</span></p>
+						<button onClick={onSubmit} className=" btn btn-primary normal-case">Login</button>
+					</div>
 				</div>
 			</div>
-		</div>
+		</MainLayout>
 	)
 };
 

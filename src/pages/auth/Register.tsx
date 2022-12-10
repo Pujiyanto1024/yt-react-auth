@@ -2,6 +2,10 @@ import React, { FC, useState } from "react";
 import { CustomInput } from "../../components/input";
 import { useNavigate } from "react-router-dom";
 
+import { MainLayout } from "../../components/layouts";
+
+import InputValidation from "../../helpers/InputValidation";
+
 interface DataRegister {
 	name?: string | null,
 	email?: string | null,
@@ -32,6 +36,25 @@ const Register: FC = () => {
 
 		const { name, value } = e.target;
 
+		let errStr = "";
+		if (name === "name") {
+			errStr = InputValidation.TextValidation(value, 30, "Name", true);
+		}
+		if (name === "email") {
+			errStr = InputValidation.EmailValidation(value, 50, "Email", true);
+		}
+		if (name === "password") {
+			errStr = InputValidation.PasswordValidation(value, 8, 16, "Password", true);
+		}
+		if (name === "confirmPassword") {
+			errStr = value === data.password ? "" : "Password didn't match";
+		}
+
+		setErrData({
+			...errData,
+			[name]: errStr
+		});
+
 		setData({
 			...data,
 			[name]: value
@@ -41,65 +64,90 @@ const Register: FC = () => {
 
 	/* -------------------------------- OnSubmit -------------------------------- */
 	const onSubmit = () => {
-		console.log(data);
+		const valid = onValidation();
+		if (valid) {
+			console.log(data);
+		}
 	};
 	/* ------------------------------ End OnSubmit ------------------------------ */
 
-	return (
-		<div className=" w-full">
-			<p className=" text-center text-2xl text-menu-label mb-8">Registration</p>
-			<div className=" container">
-				<div className="mb-5">
-					<CustomInput
-						name="name"
-						label="Fullname"
-						required={true}
-						type="text"
-						value={data.name ?? ''}
-						error={errData.name}
-						onChange={onChange}
-					/>
-				</div>
-				<div className="mb-5">
-					<CustomInput
-						name="email"
-						label="Email"
-						required={true}
-						type="email"
-						value={data.email ?? ''}
-						error={errData.email}
-						onChange={onChange}
-					/>
-				</div>
-				<div className="mb-5">
-					<CustomInput
-						name="password"
-						label="Password"
-						required={true}
-						type="password"
-						value={data.password ?? ''}
-						error={errData.password}
-						onChange={onChange}
-					/>
-				</div>
-				<div className="mb-5">
-					<CustomInput
-						name="confirmPassword"
-						label="Confirm Password"
-						required={true}
-						type="password"
-						value={data.confirmPassword ?? ''}
-						error={errData.confirmPassword}
-						onChange={onChange}
-					/>
-				</div>
+	/* ------------------------------ On Validation ----------------------------- */
+	const onValidation = (): boolean => {
+		const tempValidation: DataRegister = {
+			name: InputValidation.EmailValidation(data.name, 30, "Name", true),
+			email: InputValidation.EmailValidation(data.email, 50, "Email", true),
+			password: InputValidation.PasswordValidation(data.password, 8, 16, "Password", true),
+			confirmPassword: data.confirmPassword === data.password ? "" : "Password didn't match"
+		};
 
-				<div className="flex justify-between items-center">
-					<p className="">Have account ? <span className=" text-secondary-50 cursor-pointer" onClick={() => navigate("/auth/login")}>Login</span></p>
-					<button onClick={onSubmit} className=" btn btn-primary normal-case">Sign Up</button>
+		setErrData(tempValidation);
+
+		for (var key in tempValidation) {
+			if ((tempValidation as any)[key] !== "") {
+				return false;
+			}
+		}
+		return true;
+	};
+	/* ---------------------------- End On Validation --------------------------- */
+
+	return (
+		<MainLayout>
+			<div className=" w-full">
+				<p className=" text-center text-2xl text-menu-label mb-8">Registration</p>
+				<div className=" container">
+					<div className="mb-5">
+						<CustomInput
+							name="name"
+							label="Fullname"
+							required={true}
+							type="text"
+							value={data.name ?? ''}
+							error={errData.name}
+							onChange={onChange}
+						/>
+					</div>
+					<div className="mb-5">
+						<CustomInput
+							name="email"
+							label="Email"
+							required={true}
+							type="email"
+							value={data.email ?? ''}
+							error={errData.email}
+							onChange={onChange}
+						/>
+					</div>
+					<div className="mb-5">
+						<CustomInput
+							name="password"
+							label="Password"
+							required={true}
+							type="password"
+							value={data.password ?? ''}
+							error={errData.password}
+							onChange={onChange}
+						/>
+					</div>
+					<div className="mb-5">
+						<CustomInput
+							name="confirmPassword"
+							label="Confirm Password"
+							required={true}
+							type="password"
+							value={data.confirmPassword ?? ''}
+							error={errData.confirmPassword}
+							onChange={onChange}
+						/>
+					</div>
+
+					<div className="flex justify-between items-center">
+						<p className="">Have account ? <span className=" text-secondary-50 cursor-pointer" onClick={() => navigate("/auth/login")}>Login</span></p>
+						<button onClick={onSubmit} className=" btn btn-primary normal-case">Sign Up</button>
+					</div>
 				</div>
 			</div>
-		</div>
+		</MainLayout>
 	)
 };
 
