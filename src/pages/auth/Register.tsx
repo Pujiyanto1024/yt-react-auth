@@ -1,10 +1,12 @@
 import React, { FC, useState } from "react";
-import { CustomInput } from "../../components/input";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+import { CustomInput } from "../../components/input";
 
-import { MainLayout } from "../../components/layouts";
+import { MainLayout, LoadingScreen } from "../../components/layouts";
 
 import InputValidation from "../../helpers/InputValidation";
+import Http from "../../helpers/Fetch";
 
 interface DataRegister {
 	name?: string | null,
@@ -14,7 +16,8 @@ interface DataRegister {
 }
 
 const Register: FC = () => {
-	const navigate = useNavigate()
+	const navigate = useNavigate();
+	const [loading, setLoading] = useState<boolean>(false);
 	const [data, setData] = useState<DataRegister>({
 		name: '',
 		email: '',
@@ -66,15 +69,41 @@ const Register: FC = () => {
 	const onSubmit = () => {
 		const valid = onValidation();
 		if (valid) {
-			console.log(data);
+			Swal.fire({
+				icon: "question",
+				text: "Are you sure ?",
+				cancelButtonText: "Cancel",
+				confirmButtonText: "Sign Up",
+				showCancelButton: true
+			}).then((res) => {
+				if (res.isConfirmed) {
+					SignUp();
+				}
+			})
 		}
 	};
+
+	const SignUp = async () => {
+		setLoading(true);
+		try {
+			const res = await Http.post("/user/signup", data);
+			setLoading(false);
+			navigate("/auth/login");
+		} catch (err: any) {
+			setLoading(false);
+			Swal.fire({
+				text: err?.response?.data?.message,
+				title: "Error",
+				icon: "error"
+			})
+		}
+	}
 	/* ------------------------------ End OnSubmit ------------------------------ */
 
 	/* ------------------------------ On Validation ----------------------------- */
 	const onValidation = (): boolean => {
 		const tempValidation: DataRegister = {
-			name: InputValidation.EmailValidation(data.name, 30, "Name", true),
+			name: InputValidation.TextValidation(data.name, 30, "Name", true),
 			email: InputValidation.EmailValidation(data.email, 50, "Email", true),
 			password: InputValidation.PasswordValidation(data.password, 8, 16, "Password", true),
 			confirmPassword: data.confirmPassword === data.password ? "" : "Password didn't match"
@@ -92,62 +121,67 @@ const Register: FC = () => {
 	/* ---------------------------- End On Validation --------------------------- */
 
 	return (
-		<MainLayout>
-			<div className=" w-full">
-				<p className=" text-center text-2xl text-menu-label mb-8">Registration</p>
-				<div className=" container">
-					<div className="mb-5">
-						<CustomInput
-							name="name"
-							label="Fullname"
-							required={true}
-							type="text"
-							value={data.name ?? ''}
-							error={errData.name}
-							onChange={onChange}
-						/>
-					</div>
-					<div className="mb-5">
-						<CustomInput
-							name="email"
-							label="Email"
-							required={true}
-							type="email"
-							value={data.email ?? ''}
-							error={errData.email}
-							onChange={onChange}
-						/>
-					</div>
-					<div className="mb-5">
-						<CustomInput
-							name="password"
-							label="Password"
-							required={true}
-							type="password"
-							value={data.password ?? ''}
-							error={errData.password}
-							onChange={onChange}
-						/>
-					</div>
-					<div className="mb-5">
-						<CustomInput
-							name="confirmPassword"
-							label="Confirm Password"
-							required={true}
-							type="password"
-							value={data.confirmPassword ?? ''}
-							error={errData.confirmPassword}
-							onChange={onChange}
-						/>
-					</div>
+		loading ? (
+			<LoadingScreen />
+		) : (
+				
+			<MainLayout>
+				<div className=" w-full">
+					<p className=" text-center text-2xl text-menu-label mb-8">Registration</p>
+					<div className=" container">
+						<div className="mb-5">
+							<CustomInput
+								name="name"
+								label="Fullname"
+								required={true}
+								type="text"
+								value={data.name ?? ''}
+								error={errData.name}
+								onChange={onChange}
+							/>
+						</div>
+						<div className="mb-5">
+							<CustomInput
+								name="email"
+								label="Email"
+								required={true}
+								type="email"
+								value={data.email ?? ''}
+								error={errData.email}
+								onChange={onChange}
+							/>
+						</div>
+						<div className="mb-5">
+							<CustomInput
+								name="password"
+								label="Password"
+								required={true}
+								type="password"
+								value={data.password ?? ''}
+								error={errData.password}
+								onChange={onChange}
+							/>
+						</div>
+						<div className="mb-5">
+							<CustomInput
+								name="confirmPassword"
+								label="Confirm Password"
+								required={true}
+								type="password"
+								value={data.confirmPassword ?? ''}
+								error={errData.confirmPassword}
+								onChange={onChange}
+							/>
+						</div>
 
-					<div className="flex justify-between items-center">
-						<p className="">Have account ? <span className=" text-secondary-50 cursor-pointer" onClick={() => navigate("/auth/login")}>Login</span></p>
-						<button onClick={onSubmit} className=" btn btn-primary normal-case">Sign Up</button>
+						<div className="flex justify-between items-center">
+							<p className="">Have account ? <span className=" text-secondary-50 cursor-pointer" onClick={() => navigate("/auth/login")}>Login</span></p>
+							<button onClick={onSubmit} className=" btn btn-primary normal-case">Sign Up</button>
+						</div>
 					</div>
 				</div>
-			</div>
-		</MainLayout>
+			</MainLayout>
+		)
 	)
 };
 
