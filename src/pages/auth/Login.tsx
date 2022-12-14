@@ -1,10 +1,15 @@
 import React, { FC, useState } from "react";
+import Swal from "sweetalert2";
+
 import { CustomInput } from "../../components/input";
 import { useNavigate } from "react-router-dom";
 
-import { MainLayout } from "../../components/layouts"
+import { MainLayout, LoadingScreen } from "../../components/layouts"
 
 import InputValidation from "../../helpers/InputValidation";
+import Http from "../../helpers/Fetch";
+import AuthUser from "../../helpers/AuthUser";
+import AuthAttributes from "../../interface/AuthUserInterface";
 
 interface DataLogin {
 	email?: string | null,
@@ -13,6 +18,7 @@ interface DataLogin {
 
 const Login: FC = () => {
 	const navigate = useNavigate();
+	const [loading, setLoading] = useState<boolean>(false);
 	const [data, setData] = useState<DataLogin>({
 		email: '',
 		password: '',
@@ -51,10 +57,37 @@ const Login: FC = () => {
 	/* ------------------------------ End OnChange ------------------------------ */
 
 	/* -------------------------------- OnSubmit -------------------------------- */
-	const onSubmit = () => {
+	const onSubmit = async() => {
 		const valid = onValidation();
 		if (valid) {
-			console.log(data);
+			setLoading(true)
+			try {
+				const response = await Http.post("/user/login", data, { withCredentials: true });
+				const responseData: AuthAttributes = {
+					id: response.data?.data?.id,
+					name: response.data?.data?.name,
+					email: response.data?.data?.email,
+					roleId: response.data?.data?.roleId,
+					token: response.data?.data?.token,
+					menuAccess: response.data?.data?.menuAccess,
+				}
+				setData({
+					...data,
+					email: "",
+					password: ""
+				});
+
+				AuthUser.SetAuth(responseData);
+				setLoading(false);
+				navigate("/dashboard");
+			} catch (error:any) {
+				Swal.fire({
+					icon: "error",
+					text: "Invalid Credentials",
+					title: "Oops!!"
+				})
+				setLoading(false)
+			}
 		}
 	};
 	/* ------------------------------ End OnSubmit ------------------------------ */
@@ -77,7 +110,9 @@ const Login: FC = () => {
 	};
 	/* ---------------------------- End On Validation --------------------------- */
 
-	return (
+	return loading ? (
+		<LoadingScreen/>
+	) : (
 		<MainLayout>
 
 			<div className=" w-full">
