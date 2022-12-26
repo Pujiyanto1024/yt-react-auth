@@ -4,6 +4,10 @@ import { Routes, Route } from "react-router-dom";
 import ProtectRoute from "./ProtectRoute";
 import { LandingPage, NotFoundPage, Dashboard } from "../pages";
 
+import {
+	ViewMenu
+} from "../pages/menu-management";
+
 import { Register, Login } from "../pages/auth";
 
 const Router = () => {
@@ -15,6 +19,11 @@ const Router = () => {
 			<Route path="/dashboard" element={
 				<ProtectRoute>
 					<Dashboard />
+				</ProtectRoute>
+			} />
+			<Route path="/master-menu" element={
+				<ProtectRoute>
+					<ViewMenu />
 				</ProtectRoute>
 			} />
 			
