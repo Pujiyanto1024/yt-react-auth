@@ -15,6 +15,7 @@ interface AuthLayoutProps {
 const AuthLayout: FC<AuthLayoutProps> = ({ children }) => {
 	const navigate = useNavigate();
 	const user = AuthUser.GetAuth();
+	const [open, setOpen] = useState<boolean>(false);
 	const [loading, setLoading] = useState<boolean>(false);
 
 	const logout = async() => {
@@ -35,9 +36,9 @@ const AuthLayout: FC<AuthLayoutProps> = ({ children }) => {
 		<LoadingScreen />
 	) : (
 		<div className="flex relative bg-gray-100 overflow-x-hidden min-h-screen antialiased">
-			<Sidebar />
-			<div className="w-full relative ml-64">
-				<Header logout={logout} />
+			<Sidebar open={open} closeMenu={() => setOpen(!open)} />
+			<div className="w-full relative ml-0 lg:ml-64">
+				<Header logout={logout} changeOpen={() => setOpen(!open)} />
 				<main className="w-full mt-16">
 					{children}
 				</main>
